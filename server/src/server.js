@@ -32,6 +32,8 @@ app.use("/api/activities", activityRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`GlobeTrotter API running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(
+    `GlobeTrotter API running on port ${PORT}`
+  );
 });
