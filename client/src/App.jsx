@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Map,
@@ -18,6 +18,9 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+
+import { getCities } from "./api";
+import Discover from "./Discover";
 
 import "./App.css";
 
@@ -168,7 +171,11 @@ function App() {
             <Dashboard onNavigate={handleNavigation} />
           )}
 
-          {activePage !== "dashboard" && (
+          {activePage === "discover" && (
+            <Discover onNavigate={handleNavigation} />
+          )}
+
+          {activePage !== "dashboard" && activePage !== "discover" && (
             <PlaceholderPage
               title={pageTitles[activePage]}
               onNavigate={handleNavigation}
@@ -181,6 +188,23 @@ function App() {
 }
 
 function Dashboard({ onNavigate }) {
+  const [cities, setCities] = useState([]);
+  const [loadingCities, setLoadingCities] = useState(true);
+
+  useEffect(() => {
+    async function loadCities() {
+      try {
+        const result = await getCities();
+        setCities(result.data || []);
+      } catch (error) {
+        console.error("Failed to load cities:", error);
+      } finally {
+        setLoadingCities(false);
+      }
+    }
+
+    loadCities();
+  }, []);
   return (
     <>
       {/* Welcome */}
@@ -364,33 +388,21 @@ function Dashboard({ onNavigate }) {
         </div>
 
         <div className="destination-grid">
-          <DestinationCard
-            city="Goa"
-            country="India"
-            price="₹12K avg."
-            emoji="🌴"
-          />
-
-          <DestinationCard
-            city="Dubai"
-            country="UAE"
-            price="₹38K avg."
-            emoji="🏙️"
-          />
-
-          <DestinationCard
-            city="Bali"
-            country="Indonesia"
-            price="₹32K avg."
-            emoji="🌺"
-          />
-
-          <DestinationCard
-            city="Paris"
-            country="France"
-            price="₹85K avg."
-            emoji="🗼"
-          />
+          {loadingCities ? (
+            <div className="loading-message">Loading destinations...</div>
+          ) : (
+            cities
+              .slice(0, 4)
+              .map((city) => (
+                <DestinationCard
+                  key={city.id}
+                  city={city.name}
+                  country={city.country}
+                  price={`Cost index ${city.costIndex}`}
+                  emoji={getCityEmoji(city.name)}
+                />
+              ))
+          )}
         </div>
       </section>
     </>
@@ -424,6 +436,23 @@ function QuickAction({ icon, title, description, onClick }) {
       <ArrowRight className="quick-arrow" size={18} />
     </button>
   );
+}
+
+function getCityEmoji(city) {
+  const emojis = {
+    Mumbai: "🌆",
+    Goa: "🌴",
+    Delhi: "🏛️",
+    Jaipur: "🏰",
+    Udaipur: "🏞️",
+    Dubai: "🏙️",
+    Bali: "🌺",
+    Paris: "🗼",
+    Tokyo: "🗾",
+    London: "🎡",
+  };
+
+  return emojis[city] || "🌍";
 }
 
 function DestinationCard({ city, country, price, emoji }) {

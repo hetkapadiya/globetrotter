@@ -1,9 +1,19 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 
+const cityRoutes = require("./routes/cityRoutes");
+const tripRoutes = require("./routes/tripRoutes");
+
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {
@@ -13,26 +23,8 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.get("/api/test-db", async (req, res) => {
-  try {
-    const prisma = require("./config/prisma");
-
-    const users = await prisma.user.count();
-
-    res.json({
-      success: true,
-      message: "Database connected successfully",
-      users,
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: "Database connection failed",
-    });
-  }
-});
+app.use("/api/cities", cityRoutes);
+app.use("/api/trips", tripRoutes);
 
 const PORT = process.env.PORT || 5000;
 
