@@ -1983,3 +1983,119 @@ button {
     font-size: 27px;
   }
 }
+
+/* =========================================================
+   SIDEBAR HEIGHT FIX
+   Keeps Profile + Logout visible at all screen sizes
+   ========================================================= */
+
+.sidebar {
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* Navigation takes available space and scrolls if necessary */
+.navigation {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 12px;
+}
+
+/* Keep user profile + logout at bottom */
+.sidebar-bottom {
+  flex-shrink: 0;
+  margin-top: auto;
+  background: inherit;
+  padding-top: 10px;
+}
+
+/* Slightly compact sidebar spacing */
+.nav-group {
+  margin-bottom: 14px;
+}
+
+.nav-section {
+  margin-bottom: 6px;
+}
+
+.nav-item {
+  min-height: 38px;
+}
+
+/* Custom scrollbar */
+.navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navigation::-webkit-scrollbar-thumb {
+  background: rgba(115, 81, 108, 0.2);
+  border-radius: 10px;
+}
+
+.navigation::-webkit-scrollbar-thumb:hover {
+  background: rgba(115, 81, 108, 0.4);
+}
+
+/* Make sure the logout area is always clickable */
+.logout-button {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .sidebar {
+    width: 254px;
+  }
+
+  .main {
+    margin-left: 254px;
+    width: calc(100% - 254px);
+  }
+}
+
+/* Smaller laptop screens */
+@media (max-height: 750px) and (min-width: 769px) {
+  .brand {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .nav-group {
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    min-height: 34px;
+  }
+
+  .nav-section {
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-bottom {
+    padding-top: 6px;
+  }
+
+  .profile-mini {
+    padding: 8px 12px;
+  }
+
+  .logout-button {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
