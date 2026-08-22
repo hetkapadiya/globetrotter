@@ -1,4 +1,4 @@
-const API_URL = "https://globetrotter-back.onrender.com//api";
+const API_URL = "https://globetrotter-back.onrender.com/api";
 
 export async function getCities(search = "") {
   const url = search
