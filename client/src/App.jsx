@@ -32,9 +32,62 @@ function App() {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("globetrotter_user");
 
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      localStorage.removeItem("globetrotter_user");
+      return null;
+    }
   });
+
+  const [authChecking, setAuthChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const verifyAuthentication = async () => {
+      const token = localStorage.getItem("globetrotter_token");
+
+      if (!token) {
+        setAuthChecking(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Session expired");
+        }
+
+        const result = await response.json();
+
+        const currentUser = result?.data?.user || result?.data || result?.user;
+
+        if (!currentUser) {
+          throw new Error("User information not returned");
+        }
+
+        setUser(currentUser);
+
+        localStorage.setItem("globetrotter_user", JSON.stringify(currentUser));
+      } catch (error) {
+        console.error("Authentication check failed:", error);
+
+        localStorage.removeItem("globetrotter_token");
+        localStorage.removeItem("globetrotter_user");
+        setUser(null);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    verifyAuthentication();
+  }, []);
 
   const navigation = [
     {
@@ -91,6 +144,29 @@ function App() {
     setActivePage(page);
     setSidebarOpen(false);
   };
+
+  if (authChecking) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#faf8f6",
+          color: "#73516c",
+          fontSize: "14px",
+          fontFamily: "Inter, system-ui, sans-serif",
+        }}
+      >
+        Loading your journey...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Auth onLogin={handleLogin} />;
+  }
 
   return (
     <div className="app">
@@ -149,18 +225,15 @@ function App() {
 
         <div className="sidebar-bottom">
           <div className="profile-mini">
-            <div className="avatar">H</div>
+            <div className="avatar">{getInitials(user.name || user.email)}</div>
 
             <div>
-              <strong>Het Kapadiya</strong>
+              <strong>{user.name || "Traveler"}</strong>
               <span>Traveler</span>
             </div>
           </div>
 
-          <button
-            className="logout-button"
-            onClick={() => alert("Logout will be connected to authentication.")}
-          >
+          <button className="logout-button" onClick={handleLogout}>
             <LogOut size={18} />
             Logout
           </button>
@@ -184,13 +257,15 @@ function App() {
               <Sparkles size={19} />
             </button>
 
-            <div className="top-avatar">H</div>
+            <div className="top-avatar">
+              {getInitials(user.name || user.email)}
+            </div>
           </div>
         </header>
 
         <div className="content">
           {activePage === "dashboard" && (
-            <Dashboard onNavigate={handleNavigation} />
+            <Dashboard onNavigate={handleNavigation} user={user} />
           )}
 
           {activePage === "discover" && (
@@ -215,9 +290,61 @@ function App() {
   );
 }
 
-function Dashboard({ onNavigate }) {
+function getFirstName(name) {
+  if (!name) return "";
+  return name.trim().split(/\\s+/)[0];
+}
+
+function getInitials(value) {
+  if (!value) return "T";
+
+  const parts = String(value).trim().split(/\\s+/).filter(Boolean);
+
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+
+  return parts[0].slice(0, 2).toUpperCase();
+}
+
+function Dashboard({ onNavigate, user }) {
   const [cities, setCities] = useState([]);
   const [loadingCities, setLoadingCities] = useState(true);
+  const [trips, setTrips] = useState([]);
+  const [loadingTrips, setLoadingTrips] = useState(true);
+
+  useEffect(() => {
+    async function loadTrips() {
+      const token = localStorage.getItem("globetrotter_token");
+
+      if (!token) {
+        setLoadingTrips(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/trips", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Failed to load trips");
+        }
+
+        setTrips(result.data || []);
+      } catch (error) {
+        console.error("Failed to load trips:", error);
+      } finally {
+        setLoadingTrips(false);
+      }
+    }
+
+    loadTrips();
+  }, []);
 
   useEffect(() => {
     async function loadCities() {
@@ -233,6 +360,10 @@ function Dashboard({ onNavigate }) {
 
     loadCities();
   }, []);
+
+  const upcomingTrip = [...trips]
+    .filter((trip) => new Date(trip.endDate) >= new Date())
+    .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))[0];
   return (
     <>
       {/* Welcome */}
@@ -241,7 +372,8 @@ function Dashboard({ onNavigate }) {
           <p className="eyebrow">YOUR TRAVEL SPACE</p>
 
           <h1>
-            Welcome back, <span>Het!</span> 👋
+            Welcome back,{" "}
+            <span>{user?.name?.split(" ")[0] || "Traveler"}!</span> 👋
           </h1>
 
           <p className="welcome-text">
@@ -260,9 +392,12 @@ function Dashboard({ onNavigate }) {
       <section className="stats-grid">
         <StatCard
           icon={<Map size={21} />}
-          value="3"
+          value={trips.length}
           label="Total Trips"
-          detail="2 upcoming"
+          detail={`${
+            trips.filter((trip) => new Date(trip.startDate) >= new Date())
+              .length
+          } upcoming`}
         />
 
         <StatCard
@@ -300,63 +435,125 @@ function Dashboard({ onNavigate }) {
           </button>
         </div>
 
-        <div className="upcoming-card">
-          <div className="trip-cover">
-            <div className="cover-gradient" />
+        {loadingTrips ? (
+          <div className="loading-message">Loading your trips...</div>
+        ) : !upcomingTrip ? (
+          <div className="upcoming-card empty-trip-card">
+            <div>
+              <p className="eyebrow">READY TO EXPLORE?</p>
 
-            <div className="cover-content">
-              <span className="trip-status">UPCOMING</span>
+              <h2>Your next adventure starts here.</h2>
 
-              <h2>Goa Escape</h2>
+              <p>Create your first trip and start building your itinerary.</p>
+            </div>
 
-              <p>
-                <CalendarDays size={15} />
-                10 Sep — 15 Sep 2026
-              </p>
+            <button
+              className="primary-button"
+              onClick={() => onNavigate("create")}
+            >
+              <Plus size={19} />
+              Plan New Trip
+            </button>
+          </div>
+        ) : (
+          <div className="upcoming-card">
+            <div className="trip-cover">
+              <div className="cover-gradient" />
+
+              <div className="cover-content">
+                <span className="trip-status">UPCOMING</span>
+
+                <h2>{upcomingTrip.name}</h2>
+
+                <p>
+                  <CalendarDays size={15} />
+
+                  {new Date(upcomingTrip.startDate).toLocaleDateString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    },
+                  )}
+
+                  {" — "}
+
+                  {new Date(upcomingTrip.endDate).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            </div>
+
+            <div className="trip-summary">
+              <div className="route">
+                {upcomingTrip.stops?.map((stop, index) => (
+                  <div key={stop.id}>
+                    <div className="route-point">
+                      <span
+                        className={`route-dot ${
+                          index === upcomingTrip.stops.length - 1
+                            ? "destination"
+                            : ""
+                        }`}
+                      />
+
+                      <div>
+                        <strong>{stop.city?.name || "Unknown city"}</strong>
+
+                        <span>
+                          {Math.max(
+                            1,
+                            Math.ceil(
+                              (new Date(stop.endDate) -
+                                new Date(stop.startDate)) /
+                                (1000 * 60 * 60 * 24),
+                            ),
+                          )}{" "}
+                          days
+                        </span>
+                      </div>
+                    </div>
+
+                    {index < upcomingTrip.stops.length - 1 && (
+                      <div className="route-line" />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="trip-info">
+                <div>
+                  <span>Estimated budget</span>
+
+                  <strong>
+                    {upcomingTrip.budget
+                      ? `₹${upcomingTrip.budget.toLocaleString("en-IN")}`
+                      : "Not set"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Activities</span>
+
+                  <strong>
+                    {upcomingTrip.activities?.length || 0} planned
+                  </strong>
+                </div>
+
+                <button
+                  className="outline-button"
+                  onClick={() => onNavigate("trips")}
+                >
+                  View Trip
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="trip-summary">
-            <div className="route">
-              <div className="route-point">
-                <span className="route-dot" />
-                <div>
-                  <strong>Mumbai</strong>
-                  <span>2 days</span>
-                </div>
-              </div>
-
-              <div className="route-line" />
-
-              <div className="route-point">
-                <span className="route-dot destination" />
-                <div>
-                  <strong>Goa</strong>
-                  <span>3 days</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="trip-info">
-              <div>
-                <span>Estimated budget</span>
-                <strong>₹18,000</strong>
-              </div>
-
-              <div>
-                <span>Activities</span>
-                <strong>8 planned</strong>
-              </div>
-
-              <button
-                className="outline-button"
-                onClick={() => onNavigate("trips")}
-              >
-                View Trip
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
       </section>
 
       {/* Quick actions */}
