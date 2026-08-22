@@ -26,6 +26,8 @@ import CreateTrip from "./CreateTrip";
 import Auth from "./Auth";
 import TripDetails from "./TripDetails";
 import MyTrips from "./MyTrips";
+import Calendar from "./Calendar";
+
 import "./App.css";
 
 function App() {
@@ -173,21 +175,13 @@ function App() {
 
   const pageTitles = {
     dashboard: "Dashboard",
-
     trips: "My Trips",
-
     create: "Plan New Trip",
-
     calendar: "Travel Calendar",
-
     discover: "Discover",
-
     community: "Community",
-
     profile: "Profile",
-
     settings: "Settings",
-
     "trip-details": "Trip Details",
   };
 
@@ -429,6 +423,13 @@ function App() {
             <Discover onNavigate={handleNavigation} />
           )}
 
+          {activePage === "calendar" && (
+            <Calendar
+              onNavigate={handleNavigation}
+              onOpenTrip={handleOpenTrip}
+            />
+          )}
+
           {/* CREATE TRIP */}
 
           {activePage === "create" && (
@@ -449,6 +450,7 @@ function App() {
           {activePage !== "dashboard" &&
             activePage !== "discover" &&
             activePage !== "create" &&
+            activePage !== "calendar" &&
             activePage !== "trip-details" && (
               <PlaceholderPage
                 title={pageTitles[activePage]}
