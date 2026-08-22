@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trips              Trip[]
+  savedDestinations  SavedDestination[]
+}
+
+model Trip {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  coverImage  String?
+  budget      Float?
+  isPublic    Boolean  @default(false)
+  shareCode   String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stops       TripStop[]
+  activities  TripActivity[]
+  expenses    Expense[]
+
+  @@index([userId])
+}
+
+model City {
+  id          String   @id @default(cuid())
+  name        String
+  country     String
+  region      String?
+  costIndex   Int      @default(50)
+  popularity  Int      @default(50)
+  image       String?
+  description String?
+
+  stops               TripStop[]
+  activities          Activity[]
+  savedDestinations   SavedDestination[]
+}
+
+model TripStop {
+  id        String   @id @default(cuid())
+  tripId    String
+  cityId    String
+  startDate DateTime
+  endDate   DateTime
+  order     Int
+
+  trip       Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  city       City           @relation(fields: [cityId], references: [id])
+  activities TripActivity[]
+
+  @@index([tripId])
+  @@index([cityId])
+}
+
+model Activity {
+  id             String   @id @default(cuid())
+  cityId         String
+  name           String
+  description    String?
+  category       String
+  duration       Float
+  estimatedCost  Float
+  image          String?
+
+  city        City           @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  tripLinks   TripActivity[]
+
+  @@index([cityId])
+}
+
+model TripActivity {
+  id          String   @id @default(cuid())
+  tripId      String
+  tripStopId  String
+  activityId  String
+  date        DateTime
+  startTime   String?
+  endTime     String?
+  customCost  Float?
+  createdAt   DateTime @default(now())
+
+  trip       Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  tripStop   TripStop @relation(fields: [tripStopId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id])
+
+  @@index([tripId])
+  @@index([tripStopId])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  tripId      String
+  category    String
+  description String?
+  amount      Float
+  date        DateTime
+  createdAt   DateTime @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
+
+model SavedDestination {
+  id        String   @id @default(cuid())
+  userId    String
+  cityId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cityId])
+}
