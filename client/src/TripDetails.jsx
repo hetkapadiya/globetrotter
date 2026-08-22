@@ -11,12 +11,14 @@ import {
   Sparkles,
   ChevronDown,
 } from "lucide-react";
+import ActivityPicker from "./ActivityPicker";
 
 function TripDetails({ tripId, onNavigate }) {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+    const [activityStop, setActivityStop] =
+  useState(null);
   const token = localStorage.getItem("globetrotter_token");
 
   useEffect(() => {
@@ -363,10 +365,15 @@ function TripDetails({ tripId, onNavigate }) {
                             </strong>
                           </div>
 
-                          <button className="small-add-button">
-                            <Plus size={14} />
-                            Add Activity
-                          </button>
+                          <button
+  className="small-add-button"
+  onClick={() =>
+    setActivityStop(stop)
+  }
+>
+  <Plus size={14} />
+  Add Activity
+</button>
                         </div>
 
                         {activities.length === 0 ? (
@@ -548,6 +555,38 @@ function TripDetails({ tripId, onNavigate }) {
         </aside>
 
       </div>
+      {activityStop && (
+  <ActivityPicker
+    tripId={trip.id}
+    stop={activityStop}
+    onClose={() =>
+      setActivityStop(null)
+    }
+    onAdded={(newActivity) => {
+      setTrip((currentTrip) => ({
+        ...currentTrip,
+
+        stops: currentTrip.stops.map(
+          (currentStop) =>
+            currentStop.id ===
+            activityStop.id
+              ? {
+                  ...currentStop,
+
+                  activities: [
+                    ...(currentStop.activities ||
+                      []),
+                    newActivity,
+                  ],
+                }
+              : currentStop
+        ),
+      }));
+
+      setActivityStop(null);
+    }}
+  />
+)}
 
     </div>
   );

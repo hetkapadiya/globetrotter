@@ -3386,3 +3386,213 @@ button {
     grid-column: auto;
   }
 }
+
+/* =========================================================
+   ACTIVITY PICKER
+   ========================================================= */
+
+.activity-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 22, 28, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.activity-modal {
+  width: min(700px, 100%);
+  max-height: 85vh;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 25px 70px rgba(30, 20, 30, .2);
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-modal-header {
+  padding: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid #eee7eb;
+}
+
+.activity-modal-header h2 {
+  margin: 5px 0;
+  font-size: 24px;
+}
+
+.activity-modal-header p:not(.eyebrow) {
+  margin: 0;
+  color: #857a81;
+  font-size: 12px;
+}
+
+.activity-close {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: #f6f1f4;
+  color: #73516c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-search {
+  margin: 15px 20px 10px;
+  border: 1px solid #ded5db;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.activity-search svg {
+  color: #958a91;
+}
+
+.activity-search input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  font-size: 13px;
+}
+
+.activity-categories {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 0 20px 13px;
+}
+
+.activity-categories button {
+  flex-shrink: 0;
+  border: 1px solid #ddd3da;
+  background: #fff;
+  color: #756a71;
+  border-radius: 20px;
+  padding: 7px 12px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.activity-categories button.selected {
+  background: #73516c;
+  color: white;
+  border-color: #73516c;
+}
+
+.activity-results {
+  overflow-y: auto;
+  padding: 0 20px 20px;
+}
+
+.activity-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #ece6ea;
+  border-radius: 11px;
+  padding: 14px;
+  margin-bottom: 8px;
+}
+
+.activity-option-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-option-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-option-title h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.activity-option-title span {
+  background: #f5ebf2;
+  color: #73516c;
+  border-radius: 5px;
+  padding: 3px 6px;
+  font-size: 8px;
+}
+
+.activity-option-info p {
+  margin: 5px 0;
+  color: #847a80;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.activity-option-meta {
+  display: flex;
+  gap: 13px;
+  color: #81767d;
+  font-size: 10px;
+}
+
+.activity-option-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.add-activity-button {
+  border: 0;
+  background: #73516c;
+  color: white;
+  border-radius: 7px;
+  padding: 8px 11px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.add-activity-button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.activity-loading,
+.activity-empty {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #81767d;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .activity-modal-overlay {
+    padding: 10px;
+  }
+
+  .activity-modal {
+    max-height: 92vh;
+  }
+
+  .activity-option {
+    align-items: flex-start;
+  }
+
+  .activity-option-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
