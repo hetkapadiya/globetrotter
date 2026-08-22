@@ -81,12 +81,12 @@ function App() {
       <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="brand">
           <div className="brand-icon">
-            <Plane size={22} />
+            <img src="/globetrotter.svg" alt="GlobeTrotter logo" />
           </div>
 
           <div>
             <h1>GlobeTrotter</h1>
-            <span>Travel smarter</span>
+            <span>Plan smarter • Travel better</span>
           </div>
 
           <button
@@ -145,10 +145,7 @@ function App() {
       {/* Main */}
       <main className="main">
         <header className="topbar">
-          <button
-            className="mobile-menu"
-            onClick={() => setSidebarOpen(true)}
-          >
+          <button className="mobile-menu" onClick={() => setSidebarOpen(true)}>
             <Menu size={22} />
           </button>
 
@@ -196,15 +193,12 @@ function Dashboard({ onNavigate }) {
           </h1>
 
           <p className="welcome-text">
-            Plan your next adventure, organize your itinerary and travel
-            without the stress.
+            Plan your next adventure, organize your itinerary and travel without
+            the stress.
           </p>
         </div>
 
-        <button
-          className="primary-button"
-          onClick={() => onNavigate("create")}
-        >
+        <button className="primary-button" onClick={() => onNavigate("create")}>
           <Plus size={19} />
           Plan New Trip
         </button>
@@ -249,10 +243,7 @@ function Dashboard({ onNavigate }) {
             <h2>Your upcoming adventure</h2>
           </div>
 
-          <button
-            className="text-button"
-            onClick={() => onNavigate("trips")}
-          >
+          <button className="text-button" onClick={() => onNavigate("trips")}>
             View all <ArrowRight size={16} />
           </button>
         </div>
@@ -466,8 +457,8 @@ function PlaceholderPage({ title, onNavigate }) {
       <h1>{title}</h1>
 
       <p>
-        This section is part of the GlobeTrotter journey. We're connecting it
-        to the backend step-by-step.
+        This section is part of the GlobeTrotter journey. We're connecting it to
+        the backend step-by-step.
       </p>
 
       <button
