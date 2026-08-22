@@ -22,11 +22,18 @@ import {
 import { getCities } from "./api";
 import Discover from "./Discover";
 import CreateTrip from "./CreateTrip";
+import Auth from "./Auth";
 
 import "./App.css";
 
 function App() {
   const [activePage, setActivePage] = useState("dashboard");
+
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("globetrotter_user");
+
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
@@ -64,6 +71,20 @@ function App() {
     community: "Community",
     profile: "Profile",
     settings: "Settings",
+  };
+
+  const handleLogin = (loggedInUser) => {
+    setUser(loggedInUser);
+    setActivePage("dashboard");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("globetrotter_token");
+
+    localStorage.removeItem("globetrotter_user");
+
+    setUser(null);
+    setActivePage("dashboard");
   };
 
   const handleNavigation = (page) => {
