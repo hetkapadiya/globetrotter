@@ -19,15 +19,13 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 import { getCities } from "./api";
 import Discover from "./Discover";
 import CreateTrip from "./CreateTrip";
 import Auth from "./Auth";
-
+import MyTrips from "./MyTrips";
 import "./App.css";
 
 function App() {
@@ -279,6 +277,8 @@ function App() {
           {activePage === "create" && (
             <CreateTrip onNavigate={handleNavigation} />
           )}
+
+          {activePage === "trips" && <MyTrips onNavigate={handleNavigation} />}
 
           {activePage !== "dashboard" &&
             activePage !== "discover" &&
