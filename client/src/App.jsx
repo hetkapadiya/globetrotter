@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   LayoutDashboard,
   Map,
@@ -19,17 +20,18 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 import { getCities } from "./api";
 import Discover from "./Discover";
 import CreateTrip from "./CreateTrip";
 import Auth from "./Auth";
+import TripDetails from "./TripDetails";
 import MyTrips from "./MyTrips";
 import "./App.css";
 
 function App() {
   const [activePage, setActivePage] = useState("dashboard");
+
+  const [selectedTripId, setSelectedTripId] = useState(null);
 
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("globetrotter_user");
@@ -45,6 +47,10 @@ function App() {
   const [authChecking, setAuthChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  /* =========================================================
+     VERIFY AUTHENTICATION
+     ========================================================= */
+
   useEffect(() => {
     const verifyAuthentication = async () => {
       const token = localStorage.getItem("globetrotter_token");
@@ -55,7 +61,7 @@ function App() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/auth/me`, {
+        const response = await fetch("http://localhost:5000/api/auth/me", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -81,7 +87,9 @@ function App() {
         console.error("Authentication check failed:", error);
 
         localStorage.removeItem("globetrotter_token");
+
         localStorage.removeItem("globetrotter_user");
+
         setUser(null);
       } finally {
         setAuthChecking(false);
@@ -91,45 +99,107 @@ function App() {
     verifyAuthentication();
   }, []);
 
+  /* =========================================================
+     NAVIGATION
+     ========================================================= */
+
   const navigation = [
     {
       section: "MAIN",
+
       items: [
-        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { id: "trips", label: "My Trips", icon: Map },
-        { id: "create", label: "Plan New Trip", icon: Plus },
-        { id: "calendar", label: "Calendar", icon: CalendarDays },
+        {
+          id: "dashboard",
+          label: "Dashboard",
+          icon: LayoutDashboard,
+        },
+
+        {
+          id: "trips",
+          label: "My Trips",
+          icon: Map,
+        },
+
+        {
+          id: "create",
+          label: "Plan New Trip",
+          icon: Plus,
+        },
+
+        {
+          id: "calendar",
+          label: "Calendar",
+          icon: CalendarDays,
+        },
       ],
     },
+
     {
       section: "EXPLORE",
+
       items: [
-        { id: "discover", label: "Discover", icon: Compass },
-        { id: "community", label: "Community", icon: Users },
+        {
+          id: "discover",
+          label: "Discover",
+          icon: Compass,
+        },
+
+        {
+          id: "community",
+          label: "Community",
+          icon: Users,
+        },
       ],
     },
+
     {
       section: "ACCOUNT",
+
       items: [
-        { id: "profile", label: "Profile", icon: UserCircle },
-        { id: "settings", label: "Settings", icon: Settings },
+        {
+          id: "profile",
+          label: "Profile",
+          icon: UserCircle,
+        },
+
+        {
+          id: "settings",
+          label: "Settings",
+          icon: Settings,
+        },
       ],
     },
   ];
 
   const pageTitles = {
     dashboard: "Dashboard",
+
     trips: "My Trips",
+
     create: "Plan New Trip",
+
     calendar: "Travel Calendar",
+
     discover: "Discover",
+
     community: "Community",
+
     profile: "Profile",
+
     settings: "Settings",
+
+    "trip-details": "Trip Details",
   };
+
+  /* =========================================================
+     AUTH HANDLERS
+     ========================================================= */
 
   const handleLogin = (loggedInUser) => {
     setUser(loggedInUser);
+
+    setSelectedTripId(null);
+
     setActivePage("dashboard");
   };
 
@@ -139,13 +209,50 @@ function App() {
     localStorage.removeItem("globetrotter_user");
 
     setUser(null);
+
+    setSelectedTripId(null);
+
     setActivePage("dashboard");
   };
 
+  /* =========================================================
+     NORMAL NAVIGATION
+     ========================================================= */
+
   const handleNavigation = (page) => {
     setActivePage(page);
+
+    setSidebarOpen(false);
+
+    /*
+      When leaving Trip Details we keep selectedTripId.
+      This makes it possible to return to the same trip.
+    */
+  };
+
+  /* =========================================================
+     OPEN TRIP DETAILS
+     ========================================================= */
+
+  const handleOpenTrip = (tripId) => {
+    if (!tripId) {
+      console.error("Cannot open trip: trip ID missing");
+
+      return;
+    }
+
+    console.log("Opening trip:", tripId);
+
+    setSelectedTripId(tripId);
+
+    setActivePage("trip-details");
+
     setSidebarOpen(false);
   };
+
+  /* =========================================================
+     AUTH LOADING
+     ========================================================= */
 
   if (authChecking) {
     return (
@@ -166,13 +273,24 @@ function App() {
     );
   }
 
+  /* =========================================================
+     AUTH SCREEN
+     ========================================================= */
+
   if (!user) {
     return <Auth onLogin={handleLogin} />;
   }
 
+  /* =========================================================
+     MAIN APP
+     ========================================================= */
+
   return (
     <div className="app">
-      {/* Mobile overlay */}
+      {/* =====================================================
+          MOBILE OVERLAY
+          ===================================================== */}
+
       {sidebarOpen && (
         <div
           className="sidebar-overlay"
@@ -180,8 +298,13 @@ function App() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* =====================================================
+          SIDEBAR
+          ===================================================== */}
+
       <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        {/* BRAND */}
+
         <div className="brand">
           <div className="brand-icon">
             <img src="/globetrotter.svg" alt="GlobeTrotter logo" />
@@ -189,6 +312,7 @@ function App() {
 
           <div>
             <h1>GlobeTrotter</h1>
+
             <span>Plan smarter • Travel better</span>
           </div>
 
@@ -199,6 +323,8 @@ function App() {
             <X size={20} />
           </button>
         </div>
+
+        {/* NAVIGATION */}
 
         <nav className="navigation">
           {navigation.map((group) => (
@@ -217,6 +343,7 @@ function App() {
                     onClick={() => handleNavigation(item.id)}
                   >
                     <Icon size={19} />
+
                     <span>{item.label}</span>
                   </button>
                 );
@@ -225,12 +352,15 @@ function App() {
           ))}
         </nav>
 
+        {/* SIDEBAR BOTTOM */}
+
         <div className="sidebar-bottom">
           <div className="profile-mini">
             <div className="avatar">{getInitials(user.name || user.email)}</div>
 
             <div>
               <strong>{user.name || "Traveler"}</strong>
+
               <span>Traveler</span>
             </div>
           </div>
@@ -242,8 +372,13 @@ function App() {
         </div>
       </aside>
 
-      {/* Main */}
+      {/* =====================================================
+          MAIN CONTENT
+          ===================================================== */}
+
       <main className="main">
+        {/* TOPBAR */}
+
         <header className="topbar">
           <button className="mobile-menu" onClick={() => setSidebarOpen(true)}>
             <Menu size={22} />
@@ -251,7 +386,8 @@ function App() {
 
           <div>
             <p className="breadcrumb">GlobeTrotter</p>
-            <h2>{pageTitles[activePage]}</h2>
+
+            <h2>{pageTitles[activePage] || "GlobeTrotter"}</h2>
           </div>
 
           <div className="topbar-right">
@@ -265,24 +401,55 @@ function App() {
           </div>
         </header>
 
+        {/* =================================================
+            PAGE CONTENT
+            ================================================= */}
+
         <div className="content">
+          {/* DASHBOARD */}
+
           {activePage === "dashboard" && (
-            <Dashboard onNavigate={handleNavigation} user={user} />
+            <Dashboard
+              onNavigate={handleNavigation}
+              onOpenTrip={handleOpenTrip}
+              user={user}
+            />
           )}
+
+          {activePage === "trips" && (
+            <MyTrips
+              onNavigate={handleNavigation}
+              onOpenTrip={handleOpenTrip}
+            />
+          )}
+
+          {/* DISCOVER */}
 
           {activePage === "discover" && (
             <Discover onNavigate={handleNavigation} />
           )}
 
+          {/* CREATE TRIP */}
+
           {activePage === "create" && (
             <CreateTrip onNavigate={handleNavigation} />
           )}
 
-          {activePage === "trips" && <MyTrips onNavigate={handleNavigation} />}
+          {/* TRIP DETAILS */}
+
+          {activePage === "trip-details" && selectedTripId && (
+            <TripDetails
+              tripId={selectedTripId}
+              onNavigate={handleNavigation}
+            />
+          )}
+
+          {/* OTHER PAGES */}
 
           {activePage !== "dashboard" &&
             activePage !== "discover" &&
-            activePage !== "create" && (
+            activePage !== "create" &&
+            activePage !== "trip-details" && (
               <PlaceholderPage
                 title={pageTitles[activePage]}
                 onNavigate={handleNavigation}
@@ -294,15 +461,20 @@ function App() {
   );
 }
 
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
 function getFirstName(name) {
   if (!name) return "";
-  return name.trim().split(/\\s+/)[0];
+
+  return name.trim().split(/\s+/)[0];
 }
 
 function getInitials(value) {
   if (!value) return "T";
 
-  const parts = String(value).trim().split(/\\s+/).filter(Boolean);
+  const parts = String(value).trim().split(/\s+/).filter(Boolean);
 
   if (parts.length >= 2) {
     return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
@@ -311,11 +483,22 @@ function getInitials(value) {
   return parts[0].slice(0, 2).toUpperCase();
 }
 
-function Dashboard({ onNavigate, user }) {
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+function Dashboard({ onNavigate, onOpenTrip, user }) {
   const [cities, setCities] = useState([]);
+
   const [loadingCities, setLoadingCities] = useState(true);
+
   const [trips, setTrips] = useState([]);
+
   const [loadingTrips, setLoadingTrips] = useState(true);
+
+  /* =======================================================
+     LOAD TRIPS
+     ======================================================= */
 
   useEffect(() => {
     async function loadTrips() {
@@ -327,7 +510,7 @@ function Dashboard({ onNavigate, user }) {
       }
 
       try {
-        const response = await fetch(`${API_URL}/trips`, {
+        const response = await fetch("http://localhost:5000/api/trips", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -350,10 +533,15 @@ function Dashboard({ onNavigate, user }) {
     loadTrips();
   }, []);
 
+  /* =======================================================
+     LOAD CITIES
+     ======================================================= */
+
   useEffect(() => {
     async function loadCities() {
       try {
         const result = await getCities();
+
         setCities(result.data || []);
       } catch (error) {
         console.error("Failed to load cities:", error);
@@ -365,12 +553,20 @@ function Dashboard({ onNavigate, user }) {
     loadCities();
   }, []);
 
+  /* =======================================================
+     UPCOMING TRIP
+     ======================================================= */
+
   const upcomingTrip = [...trips]
     .filter((trip) => new Date(trip.endDate) >= new Date())
     .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))[0];
+
   return (
     <>
-      {/* Welcome */}
+      {/* ===================================================
+          WELCOME
+          =================================================== */}
+
       <section className="welcome-section">
         <div>
           <p className="eyebrow">YOUR TRAVEL SPACE</p>
@@ -392,7 +588,10 @@ function Dashboard({ onNavigate, user }) {
         </button>
       </section>
 
-      {/* Stats */}
+      {/* ===================================================
+          STATS
+          =================================================== */}
+
       <section className="stats-grid">
         <StatCard
           icon={<Map size={21} />}
@@ -426,16 +625,21 @@ function Dashboard({ onNavigate, user }) {
         />
       </section>
 
-      {/* Upcoming trip */}
+      {/* ===================================================
+          UPCOMING TRIP
+          =================================================== */}
+
       <section className="section-block">
         <div className="section-heading">
           <div>
             <p className="eyebrow">UP NEXT</p>
+
             <h2>Your upcoming adventure</h2>
           </div>
 
           <button className="text-button" onClick={() => onNavigate("trips")}>
-            View all <ArrowRight size={16} />
+            View all
+            <ArrowRight size={16} />
           </button>
         </div>
 
@@ -535,7 +739,9 @@ function Dashboard({ onNavigate, user }) {
 
                   <strong>
                     {upcomingTrip.budget
-                      ? `₹${upcomingTrip.budget.toLocaleString("en-IN")}`
+                      ? `₹${Number(upcomingTrip.budget).toLocaleString(
+                          "en-IN",
+                        )}`
                       : "Not set"}
                   </strong>
                 </div>
@@ -550,9 +756,10 @@ function Dashboard({ onNavigate, user }) {
 
                 <button
                   className="outline-button"
-                  onClick={() => onNavigate("trips")}
+                  onClick={() => onOpenTrip(upcomingTrip.id)}
                 >
                   View Trip
+                  <ArrowRight size={16} />
                 </button>
               </div>
             </div>
@@ -560,11 +767,15 @@ function Dashboard({ onNavigate, user }) {
         )}
       </section>
 
-      {/* Quick actions */}
+      {/* ===================================================
+          QUICK ACTIONS
+          =================================================== */}
+
       <section className="section-block">
         <div className="section-heading">
           <div>
             <p className="eyebrow">QUICK ACTIONS</p>
+
             <h2>What would you like to do?</h2>
           </div>
         </div>
@@ -600,11 +811,15 @@ function Dashboard({ onNavigate, user }) {
         </div>
       </section>
 
-      {/* Recommended */}
+      {/* ===================================================
+          RECOMMENDED DESTINATIONS
+          =================================================== */}
+
       <section className="section-block">
         <div className="section-heading">
           <div>
             <p className="eyebrow">TRAVEL INSPIRATION</p>
+
             <h2>Popular destinations</h2>
           </div>
 
@@ -612,7 +827,8 @@ function Dashboard({ onNavigate, user }) {
             className="text-button"
             onClick={() => onNavigate("discover")}
           >
-            Explore <ArrowRight size={16} />
+            Explore
+            <ArrowRight size={16} />
           </button>
         </div>
 
@@ -638,6 +854,10 @@ function Dashboard({ onNavigate, user }) {
   );
 }
 
+/* =========================================================
+   STAT CARD
+   ========================================================= */
+
 function StatCard({ icon, value, label, detail }) {
   return (
     <div className="stat-card">
@@ -645,12 +865,18 @@ function StatCard({ icon, value, label, detail }) {
 
       <div className="stat-content">
         <strong>{value}</strong>
+
         <span>{label}</span>
+
         <small>{detail}</small>
       </div>
     </div>
   );
 }
+
+/* =========================================================
+   QUICK ACTION
+   ========================================================= */
 
 function QuickAction({ icon, title, description, onClick }) {
   return (
@@ -659,6 +885,7 @@ function QuickAction({ icon, title, description, onClick }) {
 
       <div>
         <strong>{title}</strong>
+
         <p>{description}</p>
       </div>
 
@@ -667,6 +894,10 @@ function QuickAction({ icon, title, description, onClick }) {
   );
 }
 
+/* =========================================================
+   CITY EMOJI
+   ========================================================= */
+
 function getCityEmoji(city) {
   const emojis = {
     Mumbai: "🌆",
@@ -674,6 +905,7 @@ function getCityEmoji(city) {
     Delhi: "🏛️",
     Jaipur: "🏰",
     Udaipur: "🏞️",
+    Ahmedabad: "🕌",
     Dubai: "🏙️",
     Bali: "🌺",
     Paris: "🗼",
@@ -683,6 +915,10 @@ function getCityEmoji(city) {
 
   return emojis[city] || "🌍";
 }
+
+/* =========================================================
+   DESTINATION CARD
+   ========================================================= */
 
 function DestinationCard({ city, country, price, emoji }) {
   return (
@@ -694,6 +930,7 @@ function DestinationCard({ city, country, price, emoji }) {
       <div className="destination-content">
         <div>
           <strong>{city}</strong>
+
           <span>{country}</span>
         </div>
 
@@ -702,6 +939,10 @@ function DestinationCard({ city, country, price, emoji }) {
     </div>
   );
 }
+
+/* =========================================================
+   PLACEHOLDER
+   ========================================================= */
 
 function PlaceholderPage({ title, onNavigate }) {
   return (
