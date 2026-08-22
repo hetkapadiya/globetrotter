@@ -24,9 +24,7 @@ function MyTrips({ onNavigate, onOpenTrip }) {
       setError("");
 
       if (!token) {
-        throw new Error(
-          "Authentication required. Please login again."
-        );
+        throw new Error("Authentication required. Please login again.");
       }
 
       const response = await fetch(
@@ -36,23 +34,19 @@ function MyTrips({ onNavigate, onOpenTrip }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to fetch trips"
-        );
+        throw new Error(result.message || "Failed to fetch trips");
       }
 
       setTrips(result.data || []);
     } catch (err) {
       console.error("My Trips error:", err);
-      setError(
-        err.message || "Unable to load your trips."
-      );
+      setError(err.message || "Unable to load your trips.");
     } finally {
       setLoading(false);
     }
@@ -65,25 +59,19 @@ function MyTrips({ onNavigate, onOpenTrip }) {
   const formatDate = (date) => {
     if (!date) return "—";
 
-    return new Date(date).toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    );
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const getDays = (start, end) => {
     if (!start || !end) return 0;
 
-    const difference =
-      Math.ceil(
-        (new Date(end) -
-          new Date(start)) /
-          (1000 * 60 * 60 * 24)
-      );
+    const difference = Math.ceil(
+      (new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24),
+    );
 
     return Math.max(difference, 1);
   };
@@ -106,91 +94,65 @@ function MyTrips({ onNavigate, onOpenTrip }) {
 
   const handleDelete = async (tripId) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this trip?"
+      "Are you sure you want to delete this trip?",
     );
 
     if (!confirmed) return;
 
     try {
       const response = await fetch(
-        ``${import.meta.env.VITE_API_URL}/api/trips/${tripId}`,
+        `${import.meta.env.VITE_API_URL}/api/trips/${tripId}`,
         {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(
-          result.message || "Failed to delete trip"
-        );
+        throw new Error(result.message || "Failed to delete trip");
       }
 
-      setTrips((current) =>
-        current.filter(
-          (trip) => trip.id !== tripId
-        )
-      );
+      setTrips((current) => current.filter((trip) => trip.id !== tripId));
     } catch (err) {
       console.error(err);
 
-      alert(
-        err.message ||
-          "Unable to delete this trip."
-      );
+      alert(err.message || "Unable to delete this trip.");
     }
   };
 
   return (
     <div className="my-trips-page">
-
       {/* HEADER */}
 
       <section className="my-trips-header">
-
         <div>
-          <p className="eyebrow">
-            YOUR JOURNEYS
-          </p>
+          <p className="eyebrow">YOUR JOURNEYS</p>
 
           <h1>My Trips</h1>
 
           <p>
-            All your adventures in one place.
-            Plan, review and manage your journeys.
+            All your adventures in one place. Plan, review and manage your
+            journeys.
           </p>
         </div>
 
-        <button
-          className="primary-button"
-          onClick={() =>
-            onNavigate("create")
-          }
-        >
+        <button className="primary-button" onClick={() => onNavigate("create")}>
           <Plus size={18} />
           Plan New Trip
         </button>
-
       </section>
 
       {/* LOADING */}
 
       {loading && (
         <div className="trips-state">
+          <Loader2 size={30} className="spin" />
 
-          <Loader2
-            size={30}
-            className="spin"
-          />
-
-          <p>
-            Loading your journeys...
-          </p>
-
+          <p>Loading your journeys...</p>
         </div>
       )}
 
@@ -198,237 +160,149 @@ function MyTrips({ onNavigate, onOpenTrip }) {
 
       {!loading && error && (
         <div className="trips-error">
-
           <AlertCircle size={20} />
 
           <div>
-            <strong>
-              Couldn't load your trips
-            </strong>
+            <strong>Couldn't load your trips</strong>
 
             <p>{error}</p>
           </div>
 
-          <button
-            onClick={loadTrips}
-          >
-            Retry
-          </button>
-
+          <button onClick={loadTrips}>Retry</button>
         </div>
       )}
 
       {/* EMPTY */}
 
-      {!loading &&
-        !error &&
-        trips.length === 0 && (
-          <div className="empty-trips">
-
-            <div className="empty-trip-icon">
-              <MapPin size={34} />
-            </div>
-
-            <h2>
-              No trips yet
-            </h2>
-
-            <p>
-              Your next adventure is waiting.
-              Start planning your first trip.
-            </p>
-
-            <button
-              className="primary-button"
-              onClick={() =>
-                onNavigate("create")
-              }
-            >
-              <Plus size={18} />
-              Create Your First Trip
-            </button>
-
+      {!loading && !error && trips.length === 0 && (
+        <div className="empty-trips">
+          <div className="empty-trip-icon">
+            <MapPin size={34} />
           </div>
-        )}
+
+          <h2>No trips yet</h2>
+
+          <p>Your next adventure is waiting. Start planning your first trip.</p>
+
+          <button
+            className="primary-button"
+            onClick={() => onNavigate("create")}
+          >
+            <Plus size={18} />
+            Create Your First Trip
+          </button>
+        </div>
+      )}
 
       {/* TRIPS */}
 
-      {!loading &&
-        !error &&
-        trips.length > 0 && (
-          <section className="trip-list">
+      {!loading && !error && trips.length > 0 && (
+        <section className="trip-list">
+          {trips.map((trip) => {
+            const status = getStatus(trip);
 
-            {trips.map((trip) => {
+            const destinationCount = trip.stops?.length || 0;
 
-              const status =
-                getStatus(trip);
+            return (
+              <article className="my-trip-card" key={trip.id}>
+                {/* COVER */}
 
-              const destinationCount =
-                trip.stops?.length || 0;
+                <div className="trip-cover">
+                  {trip.coverImage ? (
+                    <img src={trip.coverImage} alt={trip.name} />
+                  ) : (
+                    <div className="trip-cover-placeholder">
+                      <MapPin size={42} />
+                    </div>
+                  )}
 
-              return (
-                <article
-                  className="my-trip-card"
-                  key={trip.id}
-                >
+                  <div className="trip-cover-overlay">
+                    <span
+                      className={`trip-status-badge ${status.toLowerCase()}`}
+                    >
+                      {status}
+                    </span>
+                  </div>
+                </div>
 
-                  {/* COVER */}
+                {/* CONTENT */}
 
-                  <div className="trip-cover">
+                <div className="trip-card-content">
+                  <div className="trip-card-top">
+                    <div>
+                      <p className="trip-card-label">TRIP</p>
 
-                    {trip.coverImage ? (
-                      <img
-                        src={trip.coverImage}
-                        alt={trip.name}
-                      />
-                    ) : (
-                      <div className="trip-cover-placeholder">
-                        <MapPin size={42} />
-                      </div>
-                    )}
+                      <h2>{trip.name}</h2>
+                    </div>
 
-                    <div className="trip-cover-overlay">
-                      <span
-                        className={`trip-status-badge ${status.toLowerCase()}`}
-                      >
-                        {status}
+                    <div className="trip-budget">
+                      <Wallet size={16} />
+
+                      <span>
+                        ₹{Number(trip.budget || 0).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {trip.description && (
+                    <p className="trip-description">{trip.description}</p>
+                  )}
+
+                  {/* META */}
+
+                  <div className="trip-meta">
+                    <div>
+                      <CalendarDays size={16} />
+
+                      <span>
+                        {formatDate(trip.startDate)}
+                        {" – "}
+                        {formatDate(trip.endDate)}
                       </span>
                     </div>
 
+                    <div>
+                      <MapPin size={16} />
+
+                      <span>
+                        {destinationCount} destination
+                        {destinationCount !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="days-dot" />
+
+                      <span>{getDays(trip.startDate, trip.endDate)} days</span>
+                    </div>
                   </div>
 
-                  {/* CONTENT */}
+                  {/* ACTIONS */}
 
-                  <div className="trip-card-content">
+                  <div className="trip-card-actions">
+                    <button
+                      className="view-trip-button"
+                      onClick={() => onOpenTrip(trip.id)}
+                    >
+                      <Eye size={17} />
+                      View Trip
+                      <ArrowRight size={16} />
+                    </button>
 
-                    <div className="trip-card-top">
-
-                      <div>
-
-                        <p className="trip-card-label">
-                          TRIP
-                        </p>
-
-                        <h2>
-                          {trip.name}
-                        </h2>
-
-                      </div>
-
-                      <div className="trip-budget">
-                        <Wallet size={16} />
-
-                        <span>
-                          ₹
-                          {Number(
-                            trip.budget || 0
-                          ).toLocaleString(
-                            "en-IN"
-                          )}
-                        </span>
-                      </div>
-
-                    </div>
-
-                    {trip.description && (
-                      <p className="trip-description">
-                        {trip.description}
-                      </p>
-                    )}
-
-                    {/* META */}
-
-                    <div className="trip-meta">
-
-                      <div>
-                        <CalendarDays
-                          size={16}
-                        />
-
-                        <span>
-                          {formatDate(
-                            trip.startDate
-                          )}
-                          {" – "}
-                          {formatDate(
-                            trip.endDate
-                          )}
-                        </span>
-                      </div>
-
-                      <div>
-                        <MapPin size={16} />
-
-                        <span>
-                          {destinationCount}{" "}
-                          destination
-                          {destinationCount !==
-                          1
-                            ? "s"
-                            : ""}
-                        </span>
-                      </div>
-
-                      <div>
-                        <span className="days-dot" />
-
-                        <span>
-                          {getDays(
-                            trip.startDate,
-                            trip.endDate
-                          )}{" "}
-                          days
-                        </span>
-                      </div>
-
-                    </div>
-
-                    {/* ACTIONS */}
-
-                    <div className="trip-card-actions">
-
-                      <button
-                        className="view-trip-button"
-                        onClick={() =>
-                          onOpenTrip(
-                            trip.id
-                          )
-                        }
-                      >
-                        <Eye size={17} />
-
-                        View Trip
-
-                        <ArrowRight
-                          size={16}
-                        />
-                      </button>
-
-                      <button
-                        className="delete-trip-button"
-                        onClick={() =>
-                          handleDelete(
-                            trip.id
-                          )
-                        }
-                        title="Delete trip"
-                      >
-                        <Trash2
-                          size={17}
-                        />
-                      </button>
-
-                    </div>
-
+                    <button
+                      className="delete-trip-button"
+                      onClick={() => handleDelete(trip.id)}
+                      title="Delete trip"
+                    >
+                      <Trash2 size={17} />
+                    </button>
                   </div>
-
-                </article>
-              );
-            })}
-
-          </section>
-        )}
-
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      )}
     </div>
   );
 }
