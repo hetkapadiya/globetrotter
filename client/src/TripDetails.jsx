@@ -32,7 +32,7 @@ function TripDetails({ tripId, onNavigate }) {
         }
 
         const response = await fetch(
-          `http://localhost:5000/api/trips/${tripId}`,
+          ``${import.meta.env.VITE_API_URL}/api/trips/${tripId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

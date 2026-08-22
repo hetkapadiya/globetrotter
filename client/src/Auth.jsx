@@ -9,7 +9,7 @@ import {
   User,
 } from "lucide-react";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://globetrotter-back.onrender.com//api";
 
 export default function Auth({ onLogin }) {
   const [mode, setMode] = useState("login");

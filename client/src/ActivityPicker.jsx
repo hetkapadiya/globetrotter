@@ -41,7 +41,7 @@ function ActivityPicker({
 
         const response =
           await fetch(
-            `http://localhost:5000/api/activities?cityId=${stop.cityId}`,
+            ``${import.meta.env.VITE_API_URL}/api/activities?cityId=${stop.cityId}`,
             {
               headers: {
                 Authorization:
@@ -121,7 +121,7 @@ function ActivityPicker({
 
         const response =
           await fetch(
-            "http://localhost:5000/api/activities/trip",
+            "`${import.meta.env.VITE_API_URL}/api/activities/trip",
             {
               method: "POST",
               headers: {

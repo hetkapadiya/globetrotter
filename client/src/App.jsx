@@ -63,7 +63,7 @@ function App() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch("`${import.meta.env.VITE_API_URL}/api/auth/me", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -512,7 +512,7 @@ function Dashboard({ onNavigate, onOpenTrip, user }) {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/trips", {
+        const response = await fetch("`${import.meta.env.VITE_API_URL}/api/trips", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

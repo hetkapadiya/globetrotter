@@ -37,7 +37,7 @@ function Calendar({ onNavigate, onOpenTrip }) {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/trips",
+          "`${import.meta.env.VITE_API_URL}/api/trips",
           {
             headers: {
               Authorization:
