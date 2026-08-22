@@ -123,7 +123,7 @@ function ActivityPicker({
 
         const response =
           await fetch(
-            "`${import.meta.env.VITE_API_URL}/api/activities/trip",
+            `${import.meta.env.VITE_API_URL}/api/activities/trip`,
             {
               method: "POST",
               headers: {

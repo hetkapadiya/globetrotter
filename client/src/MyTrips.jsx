@@ -30,7 +30,7 @@ function MyTrips({ onNavigate, onOpenTrip }) {
       }
 
       const response = await fetch(
-        "`${import.meta.env.VITE_API_URL}/api/trips",
+        `${import.meta.env.VITE_API_URL}/api/trips`,
         {
           method: "GET",
           headers: {
