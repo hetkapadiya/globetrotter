@@ -3,7 +3,6 @@ const prisma = require("../config/prisma");
 const createTrip = async (req, res) => {
   try {
     const {
-      userId,
       name,
       description,
       startDate,
@@ -12,11 +11,13 @@ const createTrip = async (req, res) => {
       stops = [],
     } = req.body;
 
+    const userId = req.user.userId;
+
     // Basic validation
-    if (!userId || !name || !startDate || !endDate) {
+    if (!name || !startDate || !endDate) {
       return res.status(400).json({
         success: false,
-        message: "userId, name, startDate and endDate are required",
+        message: "name, startDate and endDate are required",
       });
     }
 
@@ -74,10 +75,7 @@ const createTrip = async (req, res) => {
         description: description || null,
         startDate: start,
         endDate: end,
-        budget:
-          budget !== undefined && budget !== null
-            ? Number(budget)
-            : null,
+        budget: budget !== undefined && budget !== null ? Number(budget) : null,
 
         stops: {
           create: stops.map((stop, index) => ({
@@ -116,17 +114,9 @@ const createTrip = async (req, res) => {
   }
 };
 
-
 const getTrips = async (req, res) => {
   try {
-    const { userId } = req.query;
-
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "userId is required",
-      });
-    }
+    const userId = req.user.userId;
 
     const trips = await prisma.trip.findMany({
       where: {
@@ -168,7 +158,6 @@ const getTrips = async (req, res) => {
     });
   }
 };
-
 
 const getTripById = async (req, res) => {
   try {
@@ -238,7 +227,6 @@ const getTripById = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   createTrip,

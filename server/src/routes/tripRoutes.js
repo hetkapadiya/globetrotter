@@ -6,12 +6,14 @@ const {
   getTripById,
 } = require("../controllers/tripController");
 
+const authenticate = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
-router.post("/", createTrip);
+router.post("/", authenticate, createTrip);
 
-router.get("/", getTrips);
+router.get("/", authenticate, getTrips);
 
-router.get("/:id", getTripById);
+router.get("/:id", authenticate, getTripById);
 
 module.exports = router;

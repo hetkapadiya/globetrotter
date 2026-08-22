@@ -21,6 +21,7 @@ import {
 
 import { getCities } from "./api";
 import Discover from "./Discover";
+import CreateTrip from "./CreateTrip";
 
 import "./App.css";
 
@@ -175,12 +176,18 @@ function App() {
             <Discover onNavigate={handleNavigation} />
           )}
 
-          {activePage !== "dashboard" && activePage !== "discover" && (
-            <PlaceholderPage
-              title={pageTitles[activePage]}
-              onNavigate={handleNavigation}
-            />
+          {activePage === "create" && (
+            <CreateTrip onNavigate={handleNavigation} />
           )}
+
+          {activePage !== "dashboard" &&
+            activePage !== "discover" &&
+            activePage !== "create" && (
+              <PlaceholderPage
+                title={pageTitles[activePage]}
+                onNavigate={handleNavigation}
+              />
+            )}
         </div>
       </main>
     </div>

@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const cityRoutes = require("./routes/cityRoutes");
 const tripRoutes = require("./routes/tripRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/cities", cityRoutes);
 app.use("/api/trips", tripRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 
