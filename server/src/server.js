@@ -6,13 +6,14 @@ const cors = require("cors");
 const cityRoutes = require("./routes/cityRoutes");
 const tripRoutes = require("./routes/tripRoutes");
 const authRoutes = require("./routes/authRoutes");
+const activityRoutes = require("./routes/activityRoutes");
 
 const app = express();
 
 app.use(
   cors({
     origin: "http://localhost:5173",
-  })
+  }),
 );
 
 app.use(express.json());
@@ -27,6 +28,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/cities", cityRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/activities", activityRoutes);
 
 const PORT = process.env.PORT || 5000;
 
