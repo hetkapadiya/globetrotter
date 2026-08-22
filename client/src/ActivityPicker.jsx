@@ -41,7 +41,7 @@ function ActivityPicker({
 
         const response =
           await fetch(
-            ``${import.meta.env.VITE_API_URL}/api/activities?cityId=${stop.cityId}`,
+            `${import.meta.env.VITE_API_URL}/api/activities?cityId=${stop.cityId}`,
             {
               headers: {
                 Authorization:
