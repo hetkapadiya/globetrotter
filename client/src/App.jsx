@@ -19,6 +19,10 @@ import {
   Sparkles,
 } from "lucide-react";
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000/api";
+
 import { getCities } from "./api";
 import Discover from "./Discover";
 import CreateTrip from "./CreateTrip";
@@ -53,7 +57,7 @@ function App() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
+        const response = await fetch(`${API_URL}/auth/me`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -323,7 +327,7 @@ function Dashboard({ onNavigate, user }) {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/trips", {
+        const response = await fetch(`${API_URL}/trips`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
