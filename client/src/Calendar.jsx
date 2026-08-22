@@ -11,6 +11,8 @@ import {
   Plane,
 } from "lucide-react";
 
+import { API_URL } from "./config";
+
 function Calendar({ onNavigate, onOpenTrip }) {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import ActivityPicker from "./ActivityPicker";
 
+import { API_URL } from "./config";
+
 function TripDetails({ tripId, onNavigate }) {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);

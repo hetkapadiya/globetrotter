@@ -20,6 +20,8 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { API_URL } from "./config";
+
 import { getCities } from "./api";
 import Discover from "./Discover";
 import CreateTrip from "./CreateTrip";

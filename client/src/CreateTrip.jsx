@@ -11,6 +11,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { API_URL } from "./config";
+
 import { getCities } from "./api";
 
 const API_URL =

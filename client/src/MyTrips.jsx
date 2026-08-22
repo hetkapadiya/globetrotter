@@ -11,6 +11,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+import { API_URL } from "./config";
+
 function MyTrips({ onNavigate, onOpenTrip }) {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
